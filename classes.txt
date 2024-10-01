@@ -1,0 +1,6 @@
+Limbaje formale si tehnici de compilare
+Programare paralela si distribuita
+Criptografie cu cheie publica
+Arhitectura aplicatiilor cloud
+Programare pentru dispozitive mobile
+Proiect de cercetare
