@@ -1,5 +1,6 @@
 # Class scheduler written in Rust
 Rust program to generate my schedule for university
+
 Takes data from ```schedule.csv```, having the following structure/columns:
 
  DAY | TIME | FREQUENCY | ROOM | GROUP | TYPE | SUBJECT | TEACHER 
