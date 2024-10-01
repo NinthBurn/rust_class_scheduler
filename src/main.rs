@@ -54,6 +54,11 @@ fn read_entries_from_file() -> Vec<ScheduleEntry> {
     if let Ok(lines) = read_lines(file_name) {
         for line in lines.flatten() {
             let parse_result = parse_line_escaped(&line);
+
+            if parse_result.len() != 8 {
+                panic!("CSV must have 8 fields");
+            }
+
             let entry = ScheduleEntry{
                 day: parse_result[0].clone(),
                 period: parse_result[1].clone(),
@@ -96,7 +101,6 @@ fn read_input_yes_no() -> String {
 
 /// something
 fn main() {
-    println!("Make sure you have written the name of your classes in classes.txt as they are in the document");
     println!("Schedule will be taken from schedule.csv");
     println!("Result will be saved in output.csv");
     println!("Are you part of the first semigroup? (Y/N)");
