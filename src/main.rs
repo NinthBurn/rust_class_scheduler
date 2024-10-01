@@ -46,6 +46,7 @@ where P: AsRef<Path>, {
     Ok(io::BufReader::new(file).lines())
 }
 
+/// Reads the whole schedule from a file. Returns a vector containing every single entry for a class.
 fn read_entries_from_file() -> Vec<ScheduleEntry> {
     let mut entries: Vec<ScheduleEntry> = Vec::new();
     let file_name = String::from("./schedule.csv");
@@ -71,17 +72,26 @@ fn read_entries_from_file() -> Vec<ScheduleEntry> {
     return entries;
 }
 
-fn read_desired_classes_from_file() -> Vec<String> {
-    let mut entries: Vec<String> = Vec::new();
-    let file_name = String::from("./classes.txt");
+/// Reads the user's yes/no answer to a question. Returns ```Y``` or ```N``` as a string.
+fn read_input_yes_no() -> String {
+    let mut input: String = String::new();
+    loop {
+        io::stdin()
+            .read_line(&mut input)
+            .expect("Failed to read from keyboard");
 
-    if let Ok(lines) = read_lines(file_name) {
-        for line in lines.flatten() {
-            entries.push(line);
+        input = input.to_uppercase().trim().to_string();
+        
+        if input == "Y" || input == "N"{
+            break;
+
+        } else {
+            println!("Wrong input. Please try again.");
+            input.clear();
         }
     }
 
-    return entries;
+    return input;
 }
 
 /// something
@@ -89,17 +99,35 @@ fn main() {
     println!("Make sure you have written the name of your classes in classes.txt as they are in the document");
     println!("Schedule will be taken from schedule.csv");
     println!("Result will be saved in output.csv");
-    println!("Press any key to continue...");
+    println!("Are you part of the first semigroup? (Y/N)");
     
-    let mut group = String::new();
+    let group = read_input_yes_no();
+    
+    let mut entries: Vec<ScheduleEntry> = read_entries_from_file();
+    let mut classes: Vec<String> = Vec::new();
+    let mut desired_classes: Vec<String> = Vec::new();
+    
+    match group.as_str() {
+        "Y" => entries.retain(|entry| !entry.group.contains("/2")),
+        _ => entries.retain(|entry| !entry.group.contains("/1")),
+    }
 
-    io::stdin()
-        .read_line(&mut group)
-        .expect("Failed to read from keyboard");
-    
-    let entries = read_entries_from_file();
-    let classes = read_desired_classes_from_file();
-    
+    for entry in entries.iter() {
+        if !classes.contains(&entry.discipline) {
+            classes.push(entry.discipline.clone());
+        }
+    }
+
+    println!("Please select the classes you are signed up for:");
+    for class in classes.iter() {
+        println!("{} (Y/N)", class);
+        let input = read_input_yes_no();
+        match input.as_str() {
+            "Y" => desired_classes.push(class.clone()),
+            _ => (),
+        }
+    }
+
     let mut output_file = fs::OpenOptions::new()
                             .write(true)
                             .truncate(true)
@@ -111,11 +139,9 @@ fn main() {
     if let Err(e) = writeln!(output_file, "{}", header) {
         eprintln!("Couldn't write to file: {}", e);
     }
-
-    println!("{:?} {:?}", entries, classes);
     
     for entry in entries.iter() {
-        for class in classes.iter(){
+        for class in desired_classes.iter(){
             if entry.discipline.contains(class) {
                 if let Err(e) = writeln!(output_file, "{}", entry.to_csv_row()) {
                     eprintln!("Couldn't write to file: {}", e);
