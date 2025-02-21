@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 /// Parses a line from the CSV document, extracting all columns and returning them as a vector of strings.
 /// Keeps double quotes used for escaping characters.
 pub fn parse_line_escaped(line: &String) -> Vec<String> {
